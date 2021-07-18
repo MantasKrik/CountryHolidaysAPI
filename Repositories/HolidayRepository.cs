@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 
 namespace CountryHolidaysAPI.Repositories
 {
-    public class RegionRepository : IRepository<Region>
+    public class HolidayRepository : IRepository<HolidayName>
     {
         private readonly CountryHolidaysContext _context;
 
-        public RegionRepository(CountryHolidaysContext context)
+        public HolidayRepository(CountryHolidaysContext context)
         {
             _context = context;
         }
 
-        public async Task<Region> Create(Region holidayName)
+        public async Task<HolidayName> Create(HolidayName holidayName)
         {
             _context.Add(holidayName);
             await _context.SaveChangesAsync();
@@ -26,22 +26,22 @@ namespace CountryHolidaysAPI.Repositories
 
         public async Task Delete(int id)
         {
-            var regionToDelete = await _context.Regions.FindAsync(id);
-            _context.Regions.Remove(regionToDelete);
+            var holidayToDelete = await _context.Holidays.FindAsync(id);
+            _context.Holidays.Remove(holidayToDelete);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<Region>> Get()
+        public async Task<IEnumerable<HolidayName>> Get()
         {
-            return await _context.Regions.ToListAsync();
+            return await _context.Holidays.ToListAsync();
         }
 
-        public async Task<Region> Get(int id)
+        public async Task<HolidayName> Get(int id)
         {
-            return await _context.Regions.FindAsync(id);
+            return await _context.Holidays.FindAsync(id);
         }
 
-        public async Task Update(Region holidayName)
+        public async Task Update(HolidayName holidayName)
         {
             _context.Entry(holidayName).State = EntityState.Modified;
             await _context.SaveChangesAsync();

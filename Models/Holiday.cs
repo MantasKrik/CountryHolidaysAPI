@@ -14,7 +14,7 @@ namespace CountryHolidaysAPI.Models
         ExtraWorkingDay
     }
 
-    public class Holiday
+    public class HolidayName
     {
         public int Id { get; set; }
         public DateTime Date { get; set; }
