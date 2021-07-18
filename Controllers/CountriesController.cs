@@ -19,5 +19,11 @@ namespace CountryHolidaysAPI.Controllers
         {
             this._countryRepository = countryRepository;
         }
+
+        [HttpGet]
+        public async Task<IEnumerable<Country>> GetCountries()
+        {
+            return await _countryRepository.Get();
+        }
     }
 }
