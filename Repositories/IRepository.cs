@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace CountryHolidaysAPI.Repositories
 {
-    interface IRepository<T>
+    public interface IRepository<T>
     {
         Task<IEnumerable<T>> Get();
         Task<T> Get(int id);
