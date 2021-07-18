@@ -32,7 +32,7 @@ namespace CountryHolidaysAPI
             services.AddScoped<IRepository<Region>, RegionRepository>();
             services.AddScoped<IRepository<Holiday>, HolidayRepository>();
             services.AddScoped<IRepository<HolidayName>, HolidayNameRepository>();
-            services.AddDbContext<CountryHolidaysContext>(o => o.UseSqlServer("Data source=country_holidays.db"));
+            services.AddDbContext<CountryHolidaysContext>(o => o.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddControllers();
 
             services.AddSwaggerGen();
