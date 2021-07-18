@@ -16,12 +16,12 @@ namespace CountryHolidaysAPI.Repositories
             _context = context;
         }
 
-        public async Task<Region> Create(Region holidayName)
+        public async Task<Region> Create(Region region)
         {
-            _context.Add(holidayName);
+            _context.Add(region);
             await _context.SaveChangesAsync();
 
-            return holidayName;
+            return region;
         }
 
         public async Task Delete(int id)
@@ -41,9 +41,9 @@ namespace CountryHolidaysAPI.Repositories
             return await _context.Regions.FindAsync(id);
         }
 
-        public async Task Update(Region holidayName)
+        public async Task Update(Region region)
         {
-            _context.Entry(holidayName).State = EntityState.Modified;
+            _context.Entry(region).State = EntityState.Modified;
             await _context.SaveChangesAsync();
         }
     }
