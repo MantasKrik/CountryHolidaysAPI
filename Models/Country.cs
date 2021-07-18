@@ -12,5 +12,6 @@ namespace CountryHolidaysAPI.Models
         public string CountryCode { get; set; }
         public DateTime SupportedFromDate { get; set; }
         public DateTime SupportedToDate { get; set; }
+        public List<Region> Regions { get; set; }
     }
 }
