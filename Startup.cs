@@ -32,6 +32,8 @@ namespace CountryHolidaysAPI
             services.AddScoped<IRepository<Region>, RegionRepository>();
             services.AddDbContext<CountryHolidaysContext>(o => o.UseSqlServer("Data source=country_holidays.db"));
             services.AddControllers();
+
+            services.AddSwaggerGen();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -51,6 +53,12 @@ namespace CountryHolidaysAPI
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+            });
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Country holidays API V1");
             });
         }
     }
