@@ -20,5 +20,8 @@ namespace CountryHolidaysAPI.Models
         public DateTime Date { get; set; }
         public List<HolidayName> HolidayNames { get; set; }
         public HolidayType HolidayType { get; set; }
+        public Country Country { get; set; }
+        public int CountryId { get; set; }
+        public Region? Region { get; set; }
     }
 }
