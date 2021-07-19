@@ -3,11 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace CountryHolidaysAPI.Repositories
 {
-    public class HolidayRepository : IRepository<Holiday>
+    public class HolidayRepository : IHolidayRepositoryExtension
     {
         private readonly CountryHolidaysContext _context;
 
@@ -39,6 +40,22 @@ namespace CountryHolidaysAPI.Repositories
         public async Task<Holiday> Get(int id)
         {
             return await _context.Holidays.FindAsync(id);
+        }
+
+        public async Task<IEnumerable<object>> GetGroupedByMonth(string countryCode, string year)
+        {
+            IQueryable<Holiday> query = _context.Holidays;
+
+            if (!string.IsNullOrEmpty(countryCode))
+                query = query.Where(h => h.Country.CountryCode.Equals(countryCode));
+
+            if (!string.IsNullOrEmpty(year))
+                query = query.Where(h => h.Date.Year.Equals(year));
+
+            return await query
+                .GroupBy(h => h.Date.Month)
+                .Select(g => new { g.Key, holidays = g.Select(h => h.Date.Month == g.Key) })
+                .ToListAsync();
         }
 
         public async Task Update(Holiday holiday)

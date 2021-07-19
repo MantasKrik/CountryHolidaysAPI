@@ -30,7 +30,7 @@ namespace CountryHolidaysAPI
         {
             services.AddScoped<IRepository<Country>, CountryRepository>();
             services.AddScoped<IRepository<Region>, RegionRepository>();
-            services.AddScoped<IRepository<Holiday>, HolidayRepository>();
+            services.AddScoped<IHolidayRepositoryExtension, HolidayRepository>();
             services.AddScoped<IRepository<HolidayName>, HolidayNameRepository>();
             services.AddDbContext<CountryHolidaysContext>(o => o.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddControllers();
