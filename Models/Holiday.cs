@@ -18,7 +18,7 @@ namespace CountryHolidaysAPI.Models
     {
         public int Id { get; set; }
         public DateTime Date { get; set; }
-        public List<HolidayName> HolidayNames { get; set; }
+        public List<HolidayName> HolidayNames { get; set; } = new List<HolidayName>();
         public HolidayType HolidayType { get; set; }
         public Country Country { get; set; }
         public int CountryId { get; set; }
