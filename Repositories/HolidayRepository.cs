@@ -42,20 +42,80 @@ namespace CountryHolidaysAPI.Repositories
             return await _context.Holidays.FindAsync(id);
         }
 
-        public async Task<IEnumerable<object>> GetGroupedByMonth(string countryCode, string year)
+        public async Task<IEnumerable<object>> GetDayStatus(string countryCode, int? day, int? month, int? year)
         {
             IQueryable<Holiday> query = _context.Holidays;
 
             if (!string.IsNullOrEmpty(countryCode))
-                query = query.Where(h => h.Country.CountryCode.Equals(countryCode));
+                query = query.Include(h => h.Country).Where(h => h.Country.CountryCode.Equals(countryCode));
 
-            if (!string.IsNullOrEmpty(year))
+            if (year.HasValue)
                 query = query.Where(h => h.Date.Year.Equals(year));
 
-            return await query
-                .GroupBy(h => h.Date.Month)
-                .Select(g => new { g.Key, holidays = g.Select(h => h.Date.Month == g.Key) })
-                .ToListAsync();
+            if (month.HasValue)
+                query = query.Where(h => h.Date.Month.Equals(month));
+
+            if (day.HasValue)
+                query = query.Where(h => h.Date.Day.Equals(day));
+
+            return await query.Select(h => new { status = h.HolidayType } ).ToListAsync();
+        }
+
+        public async Task<IEnumerable<object>> GetGroupedByMonth(string countryCode, int? year)
+        {
+            IQueryable<Holiday> query = _context.Holidays;
+
+            if (!string.IsNullOrEmpty(countryCode))
+                query = query.Include(h => h.Country).Where(h => h.Country.CountryCode.Equals(countryCode));
+
+            if (year.HasValue)
+                query = query.Where(h => h.Date.Year.Equals(year));
+
+            var filteredList = await query.ToListAsync();
+                
+            return filteredList.GroupBy(h => h.Date.Month, (x, y) => new { month = x, holidays = y.ToList()})
+                .ToList();
+        }
+
+        public async Task<object> GetMaximumFreeDays(string countryCode, int year)
+        {
+            int maxFreeDays = int.MinValue;
+            int currentFreeDays = 0;
+
+            var query = _context.Holidays.Include(h => h.Country)
+                .Where(h => h.Country.CountryCode.Equals(countryCode))
+                .Where(h => h.Date.Year.Equals(year));
+        
+            for(DateTime date = new DateTime(year, 1, 1); date < new DateTime(year + 1, 1, 1); date.AddDays(1))
+            {
+                Holiday holiday = await query.FirstOrDefaultAsync(h => h.Date.Day == date.Day);
+                if(holiday == null)
+                {
+                    if(date.DayOfWeek < DayOfWeek.Saturday)
+                    {
+                        currentFreeDays++;
+                        continue;
+                    }
+                }
+                else
+                {
+                    switch (holiday.HolidayType)
+                    {
+                        case HolidayType.ExtraWorkingDay:
+                        case HolidayType.OtherDay:
+                            currentFreeDays++;
+                            continue;
+                    }
+
+                    if (currentFreeDays > maxFreeDays)
+                    {
+                        maxFreeDays = currentFreeDays;
+                        currentFreeDays = 0;
+                    }
+                }
+            }
+
+            return maxFreeDays;
         }
 
         public async Task Update(Holiday holiday)
