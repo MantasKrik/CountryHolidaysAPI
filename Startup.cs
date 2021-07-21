@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CountryHolidaysAPI.Models;
 using CountryHolidaysAPI.Repositories;
+using CountryHolidaysAPI.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace CountryHolidaysAPI
 {
@@ -28,13 +30,26 @@ namespace CountryHolidaysAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+
+            if (bool.Parse(configuration[string.Concat(DatabaseSyncServiceOptions.DatabaseSyncService, ":", "RegisterService")]))
+            {
+                services.AddHostedService<DatabaseSyncService>();
+                services.AddHttpClient();
+                services.AddDbContextFactory<CountryHolidaysContext>(options =>
+                {
+                    options.UseSqlServer(configuration["ConnectionStrings:DefaultConnection"]);
+                });
+                services.Configure<DatabaseSyncServiceOptions>(Configuration.GetSection(DatabaseSyncServiceOptions.DatabaseSyncService));
+            }
+
             services.AddScoped<IRepository<Country>, CountryRepository>();
             services.AddScoped<IRepository<Region>, RegionRepository>();
             services.AddScoped<IHolidayRepositoryExtension, HolidayRepository>();
             services.AddScoped<IRepository<HolidayName>, HolidayNameRepository>();
             services.AddDbContext<CountryHolidaysContext>(o => o.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddControllers();
-
+            
             services.AddSwaggerGen();
         }
 
