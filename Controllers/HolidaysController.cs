@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using CountryHolidaysAPI.Models;
 using CountryHolidaysAPI.Repositories;
 using CountryHolidaysAPI.Services.RepositoryServices;
 using Microsoft.AspNetCore.Http;

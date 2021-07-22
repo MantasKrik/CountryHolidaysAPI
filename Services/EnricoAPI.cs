@@ -1,11 +1,8 @@
 ﻿using CountryHolidaysAPI.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Text.Json;
-using System.IO;
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
 

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using CountryHolidaysAPI.Models;
 using CountryHolidaysAPI.Repositories;
@@ -17,7 +14,7 @@ namespace CountryHolidaysAPI.Controllers
     {
         private readonly ICountryService _countryService;
 
-        public CountriesController(IRepository<Country> countryRepository, ICountryService countryService)
+        public CountriesController(ICountryService countryService)
         {
             this._countryService = countryService;
         }

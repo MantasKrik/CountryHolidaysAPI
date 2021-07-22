@@ -1,5 +1,4 @@
-﻿using CountryHolidaysAPI.Models;
-using CountryHolidaysAPI.Repositories;
+﻿using CountryHolidaysAPI.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
