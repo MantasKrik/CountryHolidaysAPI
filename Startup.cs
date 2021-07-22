@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CountryHolidaysAPI.Controllers;
 using CountryHolidaysAPI.Models;
 using CountryHolidaysAPI.Repositories;
 using CountryHolidaysAPI.Services;
+using CountryHolidaysAPI.Services.RepositoryServices;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -34,8 +36,7 @@ namespace CountryHolidaysAPI
 
             if (bool.Parse(configuration[string.Concat(DatabaseSyncServiceOptions.DatabaseSyncService, ":", "RegisterService")]))
             {
-                services.AddHostedService<DatabaseSyncService>();
-                services.AddHttpClient();
+                services.AddHostedService<DatabaseSyncService>();                
                 services.AddDbContextFactory<CountryHolidaysContext>(options =>
                 {
                     options.UseSqlServer(configuration["ConnectionStrings:DefaultConnection"]);
@@ -43,10 +44,13 @@ namespace CountryHolidaysAPI
                 services.Configure<DatabaseSyncServiceOptions>(Configuration.GetSection(DatabaseSyncServiceOptions.DatabaseSyncService));
             }
 
-            services.AddScoped<IRepository<Country>, CountryRepository>();
+            services.AddHttpClient();
+            services.AddScoped<ICountryRepositoryExtension, CountryRepository>();
             services.AddScoped<IRepository<Region>, RegionRepository>();
             services.AddScoped<IHolidayRepositoryExtension, HolidayRepository>();
             services.AddScoped<IRepository<HolidayName>, HolidayNameRepository>();
+            services.AddScoped<ICountryService, CountryService>();
+            services.AddScoped<IHolidayService, HolidayService>();
             services.AddDbContext<CountryHolidaysContext>(o => o.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddControllers();
             
