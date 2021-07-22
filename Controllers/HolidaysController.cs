@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CountryHolidaysAPI.Models;
 using CountryHolidaysAPI.Repositories;
+using CountryHolidaysAPI.Services.RepositoryServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,37 +14,62 @@ namespace CountryHolidaysAPI.Controllers
     [ApiController]
     public class HolidaysController : ControllerBase
     {
-        private readonly IHolidayRepositoryExtension _holidayRepository;
+        private readonly IHolidayService _holidayService;
 
-        public HolidaysController(IHolidayRepositoryExtension holidayRepository)
+        public HolidaysController(IHolidayRepositoryExtension holidayRepository, IHolidayService holidayService)
         {
-            this._holidayRepository = holidayRepository;
+            this._holidayService = holidayService;
         }
 
         [HttpGet]
-        public async Task<IEnumerable<object>> GetHolidays(int? year, string countryName = null)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IEnumerable<object>>> GetHolidays(int? year, string countryCode = null)
         {
-            return await this._holidayRepository.GetGroupedByMonth(countryName, year);
+            if (!year.HasValue || string.IsNullOrEmpty(countryCode))
+                return BadRequest("year and country code has to be provided. Example: /year=2021&countryCode=ltu");
+
+            var response = await this._holidayService.GetGroupedByMonthHolidays(countryCode, year.Value);
+
+            if (response == null)
+                return NotFound();
+
+            return Ok(response);
         }
 
         [HttpGet("status/")]
-        public async Task<IEnumerable<object>> GetDayStatus(int? day, int? month, int? year, string countryCode = null)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IEnumerable<object>>> GetDayStatus(int? day, int? month, int? year, string countryCode = null)
         {
-            return await this._holidayRepository.GetDayStatus(countryCode, day, month, year);
+            if(!day.HasValue || !month.HasValue || !year.HasValue || string.IsNullOrEmpty(countryCode))
+                return BadRequest("year, month, day and country code has to be provided. Example: /day=1&month=1&year=2021&countryCode=ltu");
+
+            var response = await this._holidayService.GetDayStatus(countryCode, day.Value, month.Value, year.Value);
+
+            if (response == null)
+                return NotFound();
+
+            return Ok(response);
         }
 
         [HttpGet("free/max")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<object>> GetFreeDays(int? year, string countryCode = null)
         {
             if (!year.HasValue || string.IsNullOrEmpty(countryCode))
                 return BadRequest("year and country code has to be provided. Example: /max?year=2021&countryCode=ltu");
 
-            var response = await this._holidayRepository.GetMaximumFreeDays(countryCode, year.Value);
+            var response = await this._holidayService.GetMaxFreeDays(countryCode, year.Value);
 
             if (response == null)
                 return NotFound();
 
-            return response;
+            return Ok(response);
         }
     }
 }
