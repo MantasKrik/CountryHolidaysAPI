@@ -18,7 +18,7 @@ namespace CountryHolidaysAPI.Services
             return "https://kayaposoft.com/enrico/json/v2.0/?action=getSupportedCountries";
         }
 
-        public static string GetHolidays(DateTime? fromDate, DateTime? toDate, string countryCode, string region)
+        public static string GetHolidaysRequest(DateTime? fromDate, DateTime? toDate, string countryCode, string region)
         {
             string request = $"https://kayaposoft.com/enrico/json/v2.0?action=getHolidaysForDateRange&";
 
@@ -41,7 +41,7 @@ namespace CountryHolidaysAPI.Services
             return request;
         }
 
-        public static Task<List<Holiday>> ParseHolidays(string json, Country country, Region region, CancellationToken cancellationToken)
+        public static Task<List<Holiday>> ParseHolidays(string json, Country country, Region region, CancellationToken? cancellationToken = null)
         {          
             var holidays = new List<Holiday>();
 
@@ -49,8 +49,8 @@ namespace CountryHolidaysAPI.Services
 
             foreach (var enricoHoliday in result)
             {
-                if (cancellationToken.IsCancellationRequested)
-                    cancellationToken.ThrowIfCancellationRequested();
+                if (cancellationToken.HasValue && cancellationToken.Value.IsCancellationRequested)
+                    cancellationToken.Value.ThrowIfCancellationRequested();
 
                 holidays.Add(ParseHoliday(enricoHoliday, country, region));
             }
@@ -89,16 +89,16 @@ namespace CountryHolidaysAPI.Services
             };
         }
 
-        public static Task<List<Country>> ParseCountries(string json, CancellationToken cancellationToken)
+        public static Task<List<Country>> ParseCountries(string json, CancellationToken? cancellationToken)
         {
             var countries = new List<Country>();
-
+            
             var result = JsonSerializer.Deserialize<List<EnricoCountry>>(json);
 
             foreach(var enricoCountry in result)
             {
-                if (cancellationToken.IsCancellationRequested)
-                    cancellationToken.ThrowIfCancellationRequested();
+                if (cancellationToken.HasValue && cancellationToken.Value.IsCancellationRequested)
+                    cancellationToken.Value.ThrowIfCancellationRequested();
 
                 countries.Add(ParseCountry(enricoCountry));
             }

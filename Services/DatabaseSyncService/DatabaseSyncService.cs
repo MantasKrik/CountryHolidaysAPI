@@ -60,7 +60,7 @@ namespace CountryHolidaysAPI.Services
 
             var context = _context.CreateDbContext();
 
-            using var transaction = await context.Database.BeginTransactionAsync();
+            var transaction = await context.Database.BeginTransactionAsync();
             try
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -82,7 +82,7 @@ namespace CountryHolidaysAPI.Services
                             
                             _logger.LogInformation("Waiting before request");
                             await Task.Delay(TimeSpan.FromHours(1)/3000);
-                            var result = await _client.GetAsync(EnricoAPI.GetHolidays(c.SupportedFromDate, DateTime.Now.AddYears(1), c.CountryCode, region.RegionCode), cancellationToken);
+                            var result = await _client.GetAsync(EnricoAPI.GetHolidaysRequest(c.SupportedFromDate, DateTime.Now.AddYears(1), c.CountryCode, region.RegionCode), cancellationToken);
 
                             var holidaysList = await EnricoAPI.ParseHolidays(await result.Content.ReadAsStringAsync(), c, region, cancellationToken);
 
@@ -92,7 +92,7 @@ namespace CountryHolidaysAPI.Services
                     else
                     {
                         cancellationToken.ThrowIfCancellationRequested();
-                        var result = await _client.GetAsync(EnricoAPI.GetHolidays(c.SupportedFromDate, c.SupportedToDate, c.CountryCode, null), cancellationToken);
+                        var result = await _client.GetAsync(EnricoAPI.GetHolidaysRequest(c.SupportedFromDate, c.SupportedToDate, c.CountryCode, null), cancellationToken);
                         var holidaysList = EnricoAPI.ParseHolidays(await result.Content.ReadAsStringAsync(), c, null, cancellationToken);
 
                         await EnricoAPI.SyncHolidays(context, holidaysList.Result, cancellationToken);
