@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace CountryHolidaysAPI.Models
@@ -14,6 +15,7 @@ namespace CountryHolidaysAPI.Models
         [MaxLength(255)]
         public string Text { get; set; }
         [Required]
+        [JsonIgnore]
         public Holiday Holiday { get; set; }
         public int HolidayId { get; set; }
     }
