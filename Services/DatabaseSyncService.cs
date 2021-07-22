@@ -82,7 +82,7 @@ namespace CountryHolidaysAPI.Services
                             
                             _logger.LogInformation("Waiting before request");
                             await Task.Delay(TimeSpan.FromHours(1)/3000);
-                            var result = await _client.GetAsync(EnricoAPI.GetHolidays(c.SupportedFromDate, c.SupportedToDate, c.CountryCode, region.RegionCode), cancellationToken);
+                            var result = await _client.GetAsync(EnricoAPI.GetHolidays(c.SupportedFromDate, DateTime.Now.AddYears(1), c.CountryCode, region.RegionCode), cancellationToken);
 
                             var holidaysList = await EnricoAPI.ParseHolidays(await result.Content.ReadAsStringAsync(), c, region, cancellationToken);
 
