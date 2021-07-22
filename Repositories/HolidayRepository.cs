@@ -1,5 +1,7 @@
 ﻿using CountryHolidaysAPI.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,7 +60,20 @@ namespace CountryHolidaysAPI.Repositories
             if (day.HasValue)
                 query = query.Where(h => h.Date.Day.Equals(day));
 
-            return await query.Select(h => new { status = h.HolidayType } ).ToListAsync();
+            var response = await query.Select(h => new { status = h.HolidayType.GetDisplayName() } ).ToListAsync();
+
+            if(response != null && response.Count != 0)
+            {
+                return response;
+            }
+            else
+            {
+                var requestedDayOfWeek = new DateTime(year.Value, month.Value, day.Value).DayOfWeek;
+                if (requestedDayOfWeek != DayOfWeek.Saturday && requestedDayOfWeek != DayOfWeek.Sunday)
+                    return new List<string>() { "Workday" };
+                else
+                    return new List<string>() { "Weekend" };
+            }
         }
 
         public async Task<IEnumerable<object>> GetGroupedByMonth(string countryCode, int? year)
@@ -82,40 +97,68 @@ namespace CountryHolidaysAPI.Repositories
             int maxFreeDays = int.MinValue;
             int currentFreeDays = 0;
 
-            var query = _context.Holidays.Include(h => h.Country)
+            var query = _context.Holidays.AsNoTracking().Include(h => h.Country)
                 .Where(h => h.Country.CountryCode.Equals(countryCode))
                 .Where(h => h.Date.Year.Equals(year));
-        
-            for(DateTime date = new DateTime(year, 1, 1); date < new DateTime(year + 1, 1, 1); date.AddDays(1))
-            {
-                Holiday holiday = await query.FirstOrDefaultAsync(h => h.Date.Day == date.Day);
-                if(holiday == null)
+
+            if (await query.FirstOrDefaultAsync() == null)
+                return null;
+
+            DateTime currentDate = new DateTime(year, 1, 1);
+            
+            foreach(var h in query) {
+
+                if (h.Date == currentDate)
                 {
-                    if(date.DayOfWeek < DayOfWeek.Saturday)
-                    {
-                        currentFreeDays++;
-                        continue;
-                    }
-                }
-                else
-                {
-                    switch (holiday.HolidayType)
+                    switch (h.HolidayType)
                     {
                         case HolidayType.ExtraWorkingDay:
+                            break;
+                            
                         case HolidayType.OtherDay:
+                            if (currentDate.DayOfWeek == DayOfWeek.Saturday || currentDate.DayOfWeek == DayOfWeek.Sunday)
+                            {
+                                currentFreeDays++;
+                                currentDate = currentDate.AddDays(1);
+                                continue;
+                            }
+                            break;
+
+                        default:
                             currentFreeDays++;
+                            currentDate = currentDate.AddDays(1);
                             continue;
                     }
 
                     if (currentFreeDays > maxFreeDays)
-                    {
                         maxFreeDays = currentFreeDays;
-                        currentFreeDays = 0;
+
+                    currentFreeDays = 0;
+
+                    currentDate = currentDate.AddDays(1);
+                }
+                else
+                {
+                    while (currentDate < h.Date)
+                    {
+                        if (currentDate.DayOfWeek == DayOfWeek.Saturday || currentDate.DayOfWeek == DayOfWeek.Sunday)
+                        {
+                            currentFreeDays++;
+                        }
+                        else
+                        {
+                            if (currentFreeDays > maxFreeDays)
+                                maxFreeDays = currentFreeDays;
+
+                            currentFreeDays = 0;
+                        }
+
+                        currentDate = currentDate.AddDays(1);
                     }
                 }
             }
-
-            return maxFreeDays;
+            
+            return new { Days = maxFreeDays };
         }
 
         public async Task Update(Holiday holiday)

@@ -21,24 +21,29 @@ namespace CountryHolidaysAPI.Controllers
         }
 
         [HttpGet]
-        public Task<IEnumerable<object>> GetHolidays(int? year, string countryName = null)
+        public async Task<IEnumerable<object>> GetHolidays(int? year, string countryName = null)
         {
-            return this._holidayRepository.GetGroupedByMonth(countryName, year);
+            return await this._holidayRepository.GetGroupedByMonth(countryName, year);
         }
 
         [HttpGet("status/")]
-        public Task<IEnumerable<object>> GetDayStatus(int? day, int? month, int? year, string countryCode = null)
+        public async Task<IEnumerable<object>> GetDayStatus(int? day, int? month, int? year, string countryCode = null)
         {
-            return this._holidayRepository.GetDayStatus(countryCode, day, month, year);
+            return await this._holidayRepository.GetDayStatus(countryCode, day, month, year);
         }
 
         [HttpGet("free/max")]
-        public Task<object> GetFreeDays(int? year, string countryCode = null)
+        public async Task<ActionResult<object>> GetFreeDays(int? year, string countryCode = null)
         {
             if (!year.HasValue || string.IsNullOrEmpty(countryCode))
-                return Task.FromResult(BadRequest("year and country code has to be provided. Example: /max?year=2021&countryCode=usa").Value);
+                return BadRequest("year and country code has to be provided. Example: /max?year=2021&countryCode=ltu");
 
-            return _holidayRepository.GetMaximumFreeDays(countryCode, year.Value);
+            var response = await this._holidayRepository.GetMaximumFreeDays(countryCode, year.Value);
+
+            if (response == null)
+                return NotFound();
+
+            return response;
         }
     }
 }
