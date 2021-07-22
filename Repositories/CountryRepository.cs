@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CountryHolidaysAPI.Repositories
 {
-    public class CountryRepository : IRepository<Country>
+    public class CountryRepository : ICountryRepositoryExtension
     {
         private readonly CountryHolidaysContext _context;
 
@@ -22,6 +22,13 @@ namespace CountryHolidaysAPI.Repositories
             await _context.SaveChangesAsync();
 
             return country;
+        }
+
+        public async Task CreateRange(List<Country> entries)
+        {
+            await _context.AddRangeAsync(entries);
+
+            await _context.SaveChangesAsync();
         }
 
         public async Task Delete(int id)
@@ -39,6 +46,18 @@ namespace CountryHolidaysAPI.Repositories
         public async Task<Country> Get(int id)
         {
             return await _context.Countries.FindAsync(id);
+        }
+
+        public async Task<Country> Get(string countryCode)
+        {
+            return await _context.Countries.FirstOrDefaultAsync(c => c.CountryCode.Equals(countryCode));
+        }
+
+        public async Task<bool> IsEmpty()
+        {
+            var firstCountry = await _context.Countries.FirstOrDefaultAsync();
+
+            return firstCountry == null ? true : false;
         }
 
         public async Task Update(Country country)

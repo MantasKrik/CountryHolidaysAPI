@@ -12,5 +12,6 @@ namespace CountryHolidaysAPI.Repositories
         Task<T> Create(T entry);
         Task Update(T entry);
         Task Delete(int id);
+        Task CreateRange(List<T> entries);
     }
 }

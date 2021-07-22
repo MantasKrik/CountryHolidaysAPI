@@ -24,6 +24,13 @@ namespace CountryHolidaysAPI.Repositories
             return region;
         }
 
+        public async Task CreateRange(List<Region> entries)
+        {
+            await _context.AddRangeAsync(entries);
+
+            await _context.SaveChangesAsync();
+        }
+
         public async Task Delete(int id)
         {
             var regionToDelete = await _context.Regions.FindAsync(id);

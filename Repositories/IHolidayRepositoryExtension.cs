@@ -9,8 +9,10 @@ namespace CountryHolidaysAPI.Repositories
 {
     public interface IHolidayRepositoryExtension : IRepository<Holiday>
     {
-        Task<IEnumerable<object>> GetGroupedByMonth(string countryName, int? year);
+        Task<IEnumerable<object>> GetGroupedByMonth(string countryCode, int? year);
         Task<IEnumerable<object>> GetDayStatus(string countryCode, int? day, int? month, int? year);
         Task<object> GetMaximumFreeDays(string countryCode, int year);
+        Task<bool> IsEmpty();
+        Task<bool> IsEmpty(string countryCode, int year);
     }
 }

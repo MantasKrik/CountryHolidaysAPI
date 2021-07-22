@@ -27,6 +27,13 @@ namespace CountryHolidaysAPI.Repositories
             return holiday;
         }
 
+        public async Task CreateRange(List<Holiday> entries)
+        {
+            await _context.AddRangeAsync(entries);
+
+            await _context.SaveChangesAsync();
+        }
+
         public async Task Delete(int id)
         {
             var holidayToDelete = await _context.Holidays.FindAsync(id);
@@ -78,7 +85,7 @@ namespace CountryHolidaysAPI.Repositories
 
         public async Task<IEnumerable<object>> GetGroupedByMonth(string countryCode, int? year)
         {
-            IQueryable<Holiday> query = _context.Holidays;
+            IQueryable<Holiday> query = _context.Holidays.Include(h => h.HolidayNames);
 
             if (!string.IsNullOrEmpty(countryCode))
                 query = query.Include(h => h.Country).Where(h => h.Country.CountryCode.Equals(countryCode));
@@ -159,6 +166,20 @@ namespace CountryHolidaysAPI.Repositories
             }
             
             return new { Days = maxFreeDays };
+        }
+
+        public async Task<bool> IsEmpty()
+        {
+            var firstHoliday = await _context.Holidays.FirstOrDefaultAsync();
+
+            return firstHoliday == null ? true : false;
+        }
+
+        public async Task<bool> IsEmpty(string countryCode, int year)
+        {
+            var firstHoliday = await _context.Holidays.Include(h => h.Country).FirstOrDefaultAsync(h => h.Country.CountryCode == countryCode && h.Date.Year == year);
+
+            return firstHoliday == null ? true : false;
         }
 
         public async Task Update(Holiday holiday)

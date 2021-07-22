@@ -24,6 +24,13 @@ namespace CountryHolidaysAPI.Repositories
             return holidayName;
         }
 
+        public async Task CreateRange(List<HolidayName> entries)
+        {
+            await _context.AddRangeAsync(entries);
+
+            await _context.SaveChangesAsync();
+        }
+
         public async Task Delete(int id)
         {
             var holidayNameToDelete = await _context.HolidayNames.FindAsync(id);
