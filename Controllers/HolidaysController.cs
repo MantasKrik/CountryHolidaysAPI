@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using CountryHolidaysAPI.Repositories;
 using CountryHolidaysAPI.Services.RepositoryServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +12,7 @@ namespace CountryHolidaysAPI.Controllers
     {
         private readonly IHolidayService _holidayService;
 
-        public HolidaysController(IHolidayRepositoryExtension holidayRepository, IHolidayService holidayService)
+        public HolidaysController(IHolidayService holidayService)
         {
             this._holidayService = holidayService;
         }
