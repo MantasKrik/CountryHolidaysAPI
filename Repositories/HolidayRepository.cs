@@ -170,14 +170,14 @@ namespace CountryHolidaysAPI.Repositories
         {
             var firstHoliday = await _context.Holidays.FirstOrDefaultAsync();
 
-            return firstHoliday == null ? true : false;
+            return firstHoliday == null;
         }
 
         public async Task<bool> IsEmpty(string countryCode, int year)
         {
             var firstHoliday = await _context.Holidays.Include(h => h.Country).FirstOrDefaultAsync(h => h.Country.CountryCode == countryCode && h.Date.Year == year);
 
-            return firstHoliday == null ? true : false;
+            return firstHoliday == null;
         }
 
         public async Task Update(Holiday holiday)

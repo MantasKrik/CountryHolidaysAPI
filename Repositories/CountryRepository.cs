@@ -55,7 +55,7 @@ namespace CountryHolidaysAPI.Repositories
         {
             var firstCountry = await _context.Countries.FirstOrDefaultAsync();
 
-            return firstCountry == null ? true : false;
+            return firstCountry == null;
         }
 
         public async Task Update(Country country)
