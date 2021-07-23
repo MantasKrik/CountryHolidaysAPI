@@ -69,8 +69,6 @@ namespace CountryHolidaysAPI.Services.RepositoryServices
             {
                 return holidayRepositoryList;
             }
-
-
         }
 
         public async Task<object> GetMaxFreeDays(string countryCode, int year)
